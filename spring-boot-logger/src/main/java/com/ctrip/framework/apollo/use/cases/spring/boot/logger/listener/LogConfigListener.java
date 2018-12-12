@@ -26,6 +26,9 @@ public class LogConfigListener implements ConfigFileChangeListener {
     @Autowired
     private LoggingSystem loggingSystem;
 
+    @Autowired
+    private LogConfig logConfig;
+
     @Override
     public void onChange(ConfigFileChangeEvent configFileChangeEvent) {
 
@@ -33,7 +36,7 @@ public class LogConfigListener implements ConfigFileChangeListener {
 
         logger.info("log config:{}", content);
 
-        LogConfig logConfig = null;
+        LogConfig logConfigTemp = null;
 
         String nameSpace = configFileChangeEvent.getNamespace();
 
@@ -44,23 +47,24 @@ public class LogConfigListener implements ConfigFileChangeListener {
 
         //json
         if (LoggerJsonConfiguration.LOGGER_JSON_NAMESPACE.equals(nameSpace)) {
-            logConfig = JSON.parseObject(content, new TypeReference<LogConfig>() {
+            logConfigTemp = JSON.parseObject(content, new TypeReference<LogConfig>() {
             });
         }
         //xml
         else if (LoggerXMLConfiguration.LOGGER_XML_NAMESPACE.equals(nameSpace)) {
-            logConfig = JaxbUtil.converyToJavaBean(content, LogConfig.class);
+            logConfigTemp = JaxbUtil.converyToJavaBean(content, LogConfig.class);
         }
 
-        if (null == logConfig) {
+
+        if (null == logConfigTemp) {
             logger.error("没有查到相应NameSpace内容,请检查NameSpace配置是否存在：{}", nameSpace);
             return;
         }
 
+        logConfig.setLoggingLevelInfo(logConfigTemp.getLoggingLevelInfo().toUpperCase());
+
         LogLevel level = LogLevel.valueOf(logConfig.getLoggingLevelInfo().toUpperCase());
-
         loggingSystem.setLogLevel("", level);
-
         logger.info("{}:{}", "logging.level.", logConfig.getLoggingLevelInfo().toUpperCase());
     }
 }

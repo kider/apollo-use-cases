@@ -4,6 +4,7 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.ctrip.framework.apollo.spring.annotation.ApolloConfig;
 import com.ctrip.framework.apollo.spring.annotation.ApolloConfigChangeListener;
+import com.ctrip.framework.apollo.use.cases.spring.boot.logger.bean.LogConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class LoggerConfiguration {
     @Autowired
     private LoggingSystem loggingSystem;
 
+    @Autowired
+    private LogConfig logConfig;
+
     @ApolloConfig(LOGGER_PROPERTIES_NAMESPACE)
     private Config config;
 
@@ -40,6 +44,7 @@ public class LoggerConfiguration {
         for (String key : keyNames) {
             if (containsIgnoreCase(key, LOGGER_TAG)) {
                 String strLevel = config.getProperty(key, "info");
+                logConfig.setLoggingLevelInfo(strLevel.toUpperCase());
                 LogLevel level = LogLevel.valueOf(strLevel.toUpperCase());
                 loggingSystem.setLogLevel(key.replace(LOGGER_TAG, ""), level);
                 logger.info("{}:{}", key, strLevel);

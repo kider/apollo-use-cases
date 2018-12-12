@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * 日志ConfigBean
  */
-
 @XmlRootElement(name = "logConfig")
 public class LogConfig {
 
